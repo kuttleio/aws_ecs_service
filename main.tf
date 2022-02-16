@@ -116,7 +116,7 @@ module "logs_container_definition" {
     },
     {
       name  = "TAGS"
-      value = "${var.name_prefix}, ${var.clp_region}, ${var.wm_instance}, ${var.app_name}"
+      value = "${var.name_prefix}, ${data.aws_region.current}, ${var.wm_instance}, ${var.app_name}"
     }]
 
   mount_points = [
@@ -132,7 +132,7 @@ module "logs_container_definition" {
     secretOptions = null
     options = {
       "awslogs-group"         = aws_cloudwatch_log_group.ecs_group.name
-      "awslogs-region"        = var.clp_region
+      "awslogs-region"        = data.aws_region.current
       "awslogs-stream-prefix" = "ecs"
     }
   }
