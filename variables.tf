@@ -45,7 +45,6 @@ variable task_memory {
   type    = number
   default = null
 }
-variable container_image {}
 variable service_port {
   type    = number
 }
