@@ -112,7 +112,7 @@ module "logs_container_definition" {
   environment = [
     {
       name  = "LOGDNA_KEY"
-      value = data.aws_ssm_parameter.logdna_key.value
+      value = var.logdna_key
     },
     {
       name  = "TAGS"
