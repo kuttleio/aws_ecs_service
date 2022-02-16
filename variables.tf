@@ -16,6 +16,10 @@ variable name_prefix {
 variable image_name {
   type = string
 }
+variable image_version {
+  type    = string
+  default = "latest"
+}
 variable wm_instance {
   type = string
   default = "nice-fox"
