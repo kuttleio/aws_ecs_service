@@ -15,7 +15,7 @@
 # }
 
 output "app_port" {
-    value = var.app_port
+    value = var.service_port
 }
 
 # output cloudwatch_log_group_name {
