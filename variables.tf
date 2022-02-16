@@ -4,6 +4,7 @@ variable subnets {}
 variable image_name {}
 variable logdna_key {}
 variable name_prefix {}
+variable domain_name {}
 variable aws_lb_arn {}
 variable ecr_region {}
 variable ecr_account_id {}
