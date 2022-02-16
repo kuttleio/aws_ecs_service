@@ -23,9 +23,6 @@ variable standard_tags {
 variable cluster_name {
   type = string
 }
-variable cluster_arn {
-  type = string
-}
 variable service_name {
   type = string
 }
