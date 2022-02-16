@@ -14,7 +14,7 @@
 #     value = var.public == true ? aws_route53_record.main[0].fqdn : null
 # }
 
-output "app_port" {
+output "service_port" {
     value = var.service_port
 }
 
