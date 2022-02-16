@@ -37,6 +37,10 @@ variable container_memory {
   type    = number
   default = 512
 }
+variable container_memory_reservation {
+  type    = number
+  default = null
+}
 variable task_cpu {
   type    = number
   default = null
