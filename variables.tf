@@ -1,7 +1,6 @@
 variable vpc_id {}
 variable account_id {}
 variable subnets {}
-variable environment {}
 variable domain_name {}
 variable aws_lb_arn {}
 variable aws_lb_out_port {}
@@ -116,5 +115,14 @@ variable volumes {
     }))
   }))
   description = "Task volume definitions as list of configuration objects"
+  default     = []
+}
+
+variable environment {
+  type = list(object({
+    name  = any
+    value = any
+  }))
+  description = "List of Env Vars"
   default     = []
 }
