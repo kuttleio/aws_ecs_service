@@ -12,6 +12,7 @@ variable ecr_account_id {}
 variable security_groups {}
 variable execution_role_arn {}
 variable aws_lb_certificate_arn {}
+variable capacity_provider_name {}
 
 variable image_version {
   type    = string
