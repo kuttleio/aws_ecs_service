@@ -45,11 +45,11 @@ variable container_memory_reservation {
 }
 variable task_cpu {
   type    = number
-  default = null
+  default = 256
 }
 variable task_memory {
   type    = number
-  default = null
+  default = 512
 }
 variable service_port {
   type    = number
