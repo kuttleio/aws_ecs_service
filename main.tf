@@ -107,7 +107,7 @@ module "logs_container_definition" {
   version = "0.58.1"
 
   container_name  = "logdna"
-  container_image = "$logdna/logspout:latest"
+  container_image = "logdna/logspout:latest"
 
   environment = [
     {
