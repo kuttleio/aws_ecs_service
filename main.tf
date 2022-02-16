@@ -69,8 +69,8 @@ module "main_container_definition" {
   
   port_mappings = [
     {
-      containerPort = var.app_port
-      hostPort      = var.app_port
+      containerPort = var.service_port
+      hostPort      = var.service_port
       protocol      = "tcp"
     }
   ]
@@ -79,11 +79,11 @@ module "main_container_definition" {
   [
     {
       name  = "PORT"
-      value = var.app_port
+      value = var.service_port
     },
     {
-      name  = "APP_PORT"
-      value = var.app_port
+      name  = "service_port"
+      value = var.service_port
     }
   ])
 
@@ -266,7 +266,7 @@ resource "aws_appautoscaling_policy" "scale_down" {
 # ---------------------------------------------------
 resource "aws_lb_target_group" "aws_ecs_service_target_group" {
   name                          = "${var.name_prefix}-${var.wm_instance}-${var.service_name}-tg"
-  port                          = var.app_port
+  port                          = var.service_port
   protocol                      = "HTTP"
   vpc_id                        = var.vpc_id
   load_balancing_algorithm_type = "round_robin"
@@ -279,13 +279,13 @@ resource "aws_lb_target_group" "aws_ecs_service_target_group" {
     timeout             = 5
     interval            = 10
     path                = "/health"
-    port                = var.app_port
+    port                = var.service_port
   }
 }
 
 resource "aws_lb_listener" "aws_ecs_service_aws_lb_listener" {
   load_balancer_arn = var.aws_lb_arn
-  port              = var.app_port
+  port              = var.service_port
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-TLS-1-2-Ext-2018-06"
   certificate_arn   = var.aws_lb_certificate_arn
