@@ -13,6 +13,9 @@ variable aws_lb_certificate_arn {}
 variable name_prefix {
   type = string
 }
+variable image_name {
+  type = string
+}
 variable wm_instance {
   type = string
   default = "nice-fox"
