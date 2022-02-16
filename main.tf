@@ -132,7 +132,7 @@ module "logs_container_definition" {
     secretOptions = null
     options = {
       "awslogs-group"         = aws_cloudwatch_log_group.ecs_group.name
-      "awslogs-region"        = data.aws_region.current
+      "awslogs-region"        = data.aws_region.current.name
       "awslogs-stream-prefix" = "ecs"
     }
   }
