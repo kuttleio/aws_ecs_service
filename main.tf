@@ -145,7 +145,7 @@ module "logs_container_definition" {
 resource "aws_ecs_task_definition" "main" {
   family                    = "${var.name_prefix}-${var.wm_instance}-${var.service_name}"
   requires_compatibilities  = ["EC2"]
-  execution_role_arn        = "arn:aws:iam::${var.account_id}:role/ecsTaskExecutionRole"
+  execution_role_arn        = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ecsTaskExecutionRole"
   cpu                       = var.task_cpu > var.container_cpu ? var.task_cpu : var.container_cpu
   memory                    = var.task_memory > var.container_memory ? var.task_memory : var.container_memory
   network_mode              = "awsvpc"
@@ -216,7 +216,7 @@ resource "aws_appautoscaling_target" "autoscaling_target" {
   min_capacity        = var.container_min_capacity
   max_capacity        = var.container_max_capacity
   resource_id         = "service/${var.cluster_name}/${var.name_prefix}-${var.wm_instance}-${var.service_name}"
-  role_arn            = "arn:aws:iam::${var.account_id}:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService"
+  role_arn            = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService"
   scalable_dimension  = "ecs:service:DesiredCount"
   service_namespace   = "ecs"
   depends_on          = [time_sleep.wait]
