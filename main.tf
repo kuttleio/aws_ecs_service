@@ -330,7 +330,7 @@ resource "aws_lb" "public" {
   subnets             = var.subnets
 
   access_logs {
-    bucket  = var.s3_log_bucket
+    bucket  = "usw2-dev-lb-bucket-logs" # var.s3_log_bucket
     prefix  = "${var.service_name}_lb"
     enabled = true
   }
