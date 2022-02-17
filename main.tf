@@ -61,8 +61,8 @@ module "main_container_definition" {
   source  = "cloudposse/ecs-container-definition/aws"
   version = "0.58.1"
 
-  container_name                = var.image_name
-  container_image               = "${var.ecr_account_id}.dkr.ecr.${var.ecr_region}.amazonaws.com/${var.image_name}:${var.image_version}" ## var.container_image
+  container_name                = var.service_name
+  container_image               = "${var.ecr_account_id}.dkr.ecr.${var.ecr_region}.amazonaws.com/${var.image_name}:${var.image_version}"
   container_cpu                 = var.container_cpu
   container_memory              = var.container_memory
   container_memory_reservation  = var.container_memory_reservation > var.container_memory ? var.container_memory_reservation : var.container_memory
@@ -150,7 +150,7 @@ resource "aws_ecs_task_definition" "main" {
   memory                    = var.task_memory > var.container_memory ? var.task_memory : var.container_memory
   network_mode              = "awsvpc"
   tags                      = merge(var.standard_tags, tomap({ Name = var.service_name }))
-  container_definitions     = "[${module.main_container_definition.json_map_encoded}, ${module.logs_container_definition.json_map_encoded}]" ## module.main_container_definition.json_map_encoded_list   ## "[${module.main_container_definition.json_map}, ${module.logs_container_definition.json_map}]"
+  container_definitions     = "[${module.main_container_definition.json_map_encoded}, ${module.logs_container_definition.json_map_encoded}]" # module.main_container_definition.json_map_encoded_list
 
   volume {
     name      = "logdna"
@@ -212,6 +212,7 @@ resource "time_sleep" "wait" {
   depends_on      = [aws_ecs_service.main]
   create_duration = "30s"
 }
+
 resource "aws_appautoscaling_target" "autoscaling_target" {
   min_capacity        = var.container_min_capacity
   max_capacity        = var.container_max_capacity
@@ -223,7 +224,7 @@ resource "aws_appautoscaling_target" "autoscaling_target" {
 }
 
 resource "aws_appautoscaling_policy" "scale_up" {
-  name               = "scale-up-${var.wm_instance}-${var.service_name}"
+  name               = "scale-up-${var.name_prefix}-${var.wm_instance}-${var.service_name}"
   policy_type        = "StepScaling"
   resource_id        = aws_appautoscaling_target.autoscaling_target.resource_id
   scalable_dimension = aws_appautoscaling_target.autoscaling_target.scalable_dimension
@@ -242,7 +243,7 @@ resource "aws_appautoscaling_policy" "scale_up" {
 }
 
 resource "aws_appautoscaling_policy" "scale_down" {
-  name               = "scale-down-${var.wm_instance}-${var.service_name}"
+  name               = "scale-down-${var.name_prefix}-${var.wm_instance}-${var.service_name}"
   policy_type        = "StepScaling"
   resource_id        = aws_appautoscaling_target.autoscaling_target.resource_id
   scalable_dimension = aws_appautoscaling_target.autoscaling_target.scalable_dimension
