@@ -11,6 +11,8 @@ variable security_groups {}
 variable aws_lb_certificate_arn {}
 variable capacity_provider_name {}
 
+variable aws_lb_out_port {}
+
 variable image_version {
   type    = string
   default = "latest"
