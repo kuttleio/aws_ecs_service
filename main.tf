@@ -286,7 +286,7 @@ resource "aws_lb_target_group" "aws_ecs_service_target_group" {
 
 
 resource "aws_lb_listener" "aws_ecs_service_aws_lb_listener" {
-  load_balancer_arn = data.aws_lb.passed_on.arn ## var.aws_lb_arn
+  load_balancer_arn = data.aws_lb.passed_on.arn
   port              = var.aws_lb_out_port
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-TLS-1-2-Ext-2018-06"
