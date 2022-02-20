@@ -43,7 +43,7 @@ resource "aws_ecs_service" "main" {
   }
 
   load_balancer {
-    target_group_arn  = aws_lb_target_group.aws_ecs_fargate_service_target_group.arn
+    target_group_arn  = aws_lb_target_group.aws_ecs_service_target_group.arn
     container_name    = var.service_name
     container_port    = var.service_port
   }
