@@ -32,23 +32,23 @@ variable service_name {
 }
 variable container_cpu {
   type    = number
-  default = 256
+  default = 128
 }
 variable container_memory {
   type    = number
-  default = 512
+  default = 256
 }
 variable container_memory_reservation {
   type    = number
-  default = 512
+  default = 256
 }
 variable task_cpu {
   type    = number
-  default = 256
+  default = 128
 }
 variable task_memory {
   type    = number
-  default = 512
+  default = 256
 }
 variable service_port {
   type    = number
