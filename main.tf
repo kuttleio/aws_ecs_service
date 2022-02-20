@@ -262,61 +262,61 @@ resource "aws_appautoscaling_policy" "scale_down" {
 }
 
 
-# ---------------------------------------------------
-#    Internal Load Balancer - If Private Subnet
-# ---------------------------------------------------
-resource "aws_lb_target_group" "aws_ecs_service_target_group" {
-  name                          = "${var.name_prefix}-${var.wm_instance}-${var.service_name}-tg"
-  port                          = var.service_port
-  protocol                      = "HTTP"
-  vpc_id                        = var.vpc_id
-  load_balancing_algorithm_type = "round_robin"
-  target_type                   = "ip"
-  depends_on                    = [data.aws_lb.passed_on]
+# # ---------------------------------------------------
+# #    Internal Load Balancer - If Private Subnet
+# # ---------------------------------------------------
+# resource "aws_lb_target_group" "aws_ecs_service_target_group" {
+#   name                          = "${var.name_prefix}-${var.wm_instance}-${var.service_name}-tg"
+#   port                          = var.service_port
+#   protocol                      = "HTTP"
+#   vpc_id                        = var.vpc_id
+#   load_balancing_algorithm_type = "round_robin"
+#   target_type                   = "ip"
+#   depends_on                    = [data.aws_lb.passed_on]
   
-  health_check {
-    healthy_threshold   = 3
-    unhealthy_threshold = 10
-    timeout             = 5
-    interval            = 10
-    path                = "/health"
-    port                = var.service_port
-  }
-}
+#   health_check {
+#     healthy_threshold   = 3
+#     unhealthy_threshold = 10
+#     timeout             = 5
+#     interval            = 10
+#     path                = "/health"
+#     port                = var.service_port
+#   }
+# }
 
-resource "aws_lb_listener" "aws_ecs_service_aws_lb_listener" {
-  load_balancer_arn = var.aws_lb_arn
-  port              = var.service_port
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-TLS-1-2-Ext-2018-06"
-  certificate_arn   = var.aws_lb_certificate_arn
+# resource "aws_lb_listener" "aws_ecs_service_aws_lb_listener" {
+#   load_balancer_arn = var.aws_lb_arn
+#   port              = var.service_port
+#   protocol          = "HTTPS"
+#   ssl_policy        = "ELBSecurityPolicy-TLS-1-2-Ext-2018-06"
+#   certificate_arn   = var.aws_lb_certificate_arn
 
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.aws_ecs_service_target_group.arn
-  }
-}
+#   default_action {
+#     type             = "forward"
+#     target_group_arn = aws_lb_target_group.aws_ecs_service_target_group.arn
+#   }
+# }
 
-resource "aws_lb_listener_rule" "block_header_rule" {
-  listener_arn = aws_lb_listener.aws_ecs_service_aws_lb_listener.arn
-  priority = 100
+# resource "aws_lb_listener_rule" "block_header_rule" {
+#   listener_arn = aws_lb_listener.aws_ecs_service_aws_lb_listener.arn
+#   priority = 100
 
-  condition {
-      http_header {
-        http_header_name = "X-Forwarded-Host"
-        values           = ["*"]
-      }
-  }
+#   condition {
+#       http_header {
+#         http_header_name = "X-Forwarded-Host"
+#         values           = ["*"]
+#       }
+#   }
 
-  action {
-    type = "fixed-response"
-    fixed_response {
-      content_type  = "text/plain"
-      message_body  = "Invalid host header."
-      status_code   = 400
-    }
-  }
-}
+#   action {
+#     type = "fixed-response"
+#     fixed_response {
+#       content_type  = "text/plain"
+#       message_body  = "Invalid host header."
+#       status_code   = 400
+#     }
+#   }
+# }
 
 
 # # ---------------------------------------------------
