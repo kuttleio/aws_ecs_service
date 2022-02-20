@@ -266,6 +266,7 @@ resource "aws_appautoscaling_policy" "scale_down" {
 #    Internal Load Balancer - If Private Subnet
 # ---------------------------------------------------
 resource "aws_lb_target_group" "aws_ecs_service_target_group" {
+  count         = var.public == true ? 0 : 1
   name                          = "${var.name_prefix}-${var.wm_instance}-${var.service_name}-tg"
   port                          = var.service_port
   protocol                      = "HTTP"
@@ -286,6 +287,7 @@ resource "aws_lb_target_group" "aws_ecs_service_target_group" {
 
 
 resource "aws_lb_listener" "aws_ecs_service_aws_lb_listener" {
+  count         = var.public == true ? 0 : 1
   load_balancer_arn = var.aws_lb_arn
   port              = var.aws_lb_out_port
   protocol          = "HTTPS"
@@ -299,6 +301,7 @@ resource "aws_lb_listener" "aws_ecs_service_aws_lb_listener" {
 }
 
 resource "aws_lb_listener_rule" "block_header_rule" {
+  count         = var.public == true ? 0 : 1
   listener_arn = aws_lb_listener.aws_ecs_service_aws_lb_listener.arn
   priority = 100
 
