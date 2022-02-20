@@ -319,67 +319,67 @@ resource "aws_lb_listener_rule" "block_header_rule" {
 }
 
 
-# ---------------------------------------------------
-#    Public Load Balancer - If Public Subnet
-# ---------------------------------------------------
-resource "aws_lb" "public" {
-  count               = var.public == true ? 1 : 0
-  name                = "${var.name_prefix}-Pub-${var.service_name}-LB"
-  load_balancer_type  = "application"
-  security_groups     = var.security_groups
-  subnets             = var.subnets
+# # ---------------------------------------------------
+# #    Public Load Balancer - If Public Subnet
+# # ---------------------------------------------------
+# resource "aws_lb" "public" {
+#   count               = var.public == true ? 1 : 0
+#   name                = "${var.name_prefix}-Pub-${var.service_name}-LB"
+#   load_balancer_type  = "application"
+#   security_groups     = var.security_groups
+#   subnets             = var.subnets
 
-  access_logs {
-    bucket  = "usw2-dev-lb-bucket-logs" # var.s3_log_bucket
-    prefix  = "${var.service_name}_lb"
-    enabled = true
-  }
+#   access_logs {
+#     bucket  = "usw2-dev-lb-bucket-logs" # var.s3_log_bucket
+#     prefix  = "${var.service_name}_lb"
+#     enabled = true
+#   }
 
-  tags = merge(
-    var.standard_tags,
-    tomap({ Name = "Public-${var.service_name}" })
-  )
-}
+#   tags = merge(
+#     var.standard_tags,
+#     tomap({ Name = "Public-${var.service_name}" })
+#   )
+# }
 
-resource "aws_lb_listener" "public" {
-  count             = var.public == true ? 1 : 0
-  load_balancer_arn = aws_lb.public[0].arn
-  port              = 80
-  protocol          = "HTTP"
-  depends_on        = [aws_lb.public]
+# resource "aws_lb_listener" "public" {
+#   count             = var.public == true ? 1 : 0
+#   load_balancer_arn = aws_lb.public[0].arn
+#   port              = 80
+#   protocol          = "HTTP"
+#   depends_on        = [aws_lb.public]
 
-  default_action {
-    type = "redirect"
+#   default_action {
+#     type = "redirect"
 
-    redirect {
-      port        = 443
-      protocol    = "HTTPS"
-      status_code = "HTTP_301"
-    }
-  }
-}
+#     redirect {
+#       port        = 443
+#       protocol    = "HTTPS"
+#       status_code = "HTTP_301"
+#     }
+#   }
+# }
 
-resource "aws_lb_listener_rule" "block_header" {
-  count         = var.public == true ? 1 : 0
-  listener_arn  = aws_lb_listener.public[0].arn
-  priority      = 100
-  depends_on    = [aws_lb.public]
+# resource "aws_lb_listener_rule" "block_header" {
+#   count         = var.public == true ? 1 : 0
+#   listener_arn  = aws_lb_listener.public[0].arn
+#   priority      = 100
+#   depends_on    = [aws_lb.public]
 
-  condition {
-      http_header {
-        http_header_name = "X-Forwarded-Host"
-        values           = ["*"]
-      }
-  }
-  action {
-    type = "fixed-response"
-    fixed_response {
-      content_type = "text/plain"
-      message_body = "Invalid host header."
-      status_code = 400
-    }
-  }
-}
+#   condition {
+#       http_header {
+#         http_header_name = "X-Forwarded-Host"
+#         values           = ["*"]
+#       }
+#   }
+#   action {
+#     type = "fixed-response"
+#     fixed_response {
+#       content_type = "text/plain"
+#       message_body = "Invalid host header."
+#       status_code = 400
+#     }
+#   }
+# }
 
 
 # # ---------------------------------------------------
