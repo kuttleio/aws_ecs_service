@@ -43,7 +43,7 @@ resource "aws_ecs_service" "main" {
   }
 
   load_balancer {
-    target_group_arn  = aws_lb_target_group.aws_ecs_service_target_group.arn
+    target_group_arn  = var.target_group_arn ## aws_lb_target_group.aws_ecs_service_target_group.arn
     container_name    = var.service_name
     container_port    = var.service_port
   }
@@ -262,138 +262,138 @@ resource "aws_appautoscaling_policy" "scale_down" {
 }
 
 
-# ---------------------------------------------------
-#    Internal Load Balancer - If Private Subnet
-# ---------------------------------------------------
-resource "aws_lb_target_group" "aws_ecs_service_target_group" {
-  count         = var.public == true ? 0 : 1
-  name                          = "${var.name_prefix}-${var.wm_instance}-${var.service_name}-tg"
-  port                          = var.service_port
-  protocol                      = "HTTP"
-  vpc_id                        = var.vpc_id
-  load_balancing_algorithm_type = "round_robin"
-  target_type                   = "ip"
-  depends_on                    = [data.aws_lb.passed_on]
+# # ---------------------------------------------------
+# #    Internal Load Balancer - If Private Subnet
+# # ---------------------------------------------------
+# resource "aws_lb_target_group" "aws_ecs_service_target_group" {
+#   count         = var.public == true ? 0 : 1
+#   name                          = "${var.name_prefix}-${var.wm_instance}-${var.service_name}-tg"
+#   port                          = var.service_port
+#   protocol                      = "HTTP"
+#   vpc_id                        = var.vpc_id
+#   load_balancing_algorithm_type = "round_robin"
+#   target_type                   = "ip"
+#   depends_on                    = [data.aws_lb.passed_on]
   
-  health_check {
-    healthy_threshold   = 3
-    unhealthy_threshold = 10
-    timeout             = 5
-    interval            = 10
-    path                = "/health"
-    port                = var.service_port
-  }
-}
-
-
-resource "aws_lb_listener" "aws_ecs_service_aws_lb_listener" {
-  count         = var.public == true ? 0 : 1
-  load_balancer_arn = data.aws_lb.passed_on ## var.aws_lb_arn
-  port              = var.aws_lb_out_port
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-TLS-1-2-Ext-2018-06"
-  certificate_arn   = var.aws_lb_certificate_arn
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.aws_ecs_service_target_group.arn
-  }
-}
-
-resource "aws_lb_listener_rule" "block_header_rule" {
-  count         = var.public == true ? 0 : 1
-  listener_arn = aws_lb_listener.aws_ecs_service_aws_lb_listener.arn
-  priority = 100
-
-  condition {
-      http_header {
-        http_header_name = "X-Forwarded-Host"
-        values           = ["*"]
-      }
-  }
-
-  action {
-    type = "fixed-response"
-    fixed_response {
-      content_type  = "text/plain"
-      message_body  = "Invalid host header."
-      status_code   = 400
-    }
-  }
-}
-
-
-# ---------------------------------------------------
-#    Public Load Balancer - If Public Subnet
-# ---------------------------------------------------
-resource "aws_lb" "public" {
-  count               = var.public == true ? 1 : 0
-  name                = "${var.name_prefix}-Pub-${var.service_name}-LB"
-  load_balancer_type  = "application"
-  security_groups     = var.security_groups
-  subnets             = var.subnets
-
-  access_logs {
-    bucket  = "usw2-dev-lb-bucket-logs" # var.s3_log_bucket
-    prefix  = "${var.service_name}_lb"
-    enabled = true
-  }
-
-  tags = merge(
-    var.standard_tags,
-    tomap({ Name = "Public-${var.service_name}" })
-  )
-}
-
-resource "aws_lb_listener" "public" {
-  count             = var.public == true ? 1 : 0
-  load_balancer_arn = aws_lb.public[0].arn
-  port              = var.service_port # BEFORE: 80
-  protocol          = "HTTP"
-  depends_on        = [aws_lb.public]
-
-  default_action {
-    type = "redirect"
-
-    redirect {
-      port        = var.aws_lb_out_port # BEFORE: 443
-      protocol    = "HTTPS"
-      status_code = "HTTP_301"
-    }
-  }
-}
-
-resource "aws_lb_listener_rule" "block_header" {
-  count         = var.public == true ? 1 : 0
-  listener_arn  = aws_lb_listener.public[0].arn
-  priority      = 100
-  depends_on    = [aws_lb.public]
-
-  condition {
-      http_header {
-        http_header_name = "X-Forwarded-Host"
-        values           = ["*"]
-      }
-  }
-  action {
-    type = "fixed-response"
-    fixed_response {
-      content_type = "text/plain"
-      message_body = "Invalid host header."
-      status_code = 400
-    }
-  }
-}
-
-
-# # ---------------------------------------------------
-# #    DNS Record (CNAME)
-# # ---------------------------------------------------
-# resource "aws_route53_record" "main" {
-#   count   = var.public == true ? 1 : 0
-#   zone_id = data.aws_route53_zone.main.zone_id
-#   name    = "${var.name_prefix}-${var.service_name}"
-#   type    = "CNAME"
-#   ttl     = 300
-#   records = [aws_lb.public[0].dns_name]
+#   health_check {
+#     healthy_threshold   = 3
+#     unhealthy_threshold = 10
+#     timeout             = 5
+#     interval            = 10
+#     path                = "/health"
+#     port                = var.service_port
+#   }
 # }
+
+
+# resource "aws_lb_listener" "aws_ecs_service_aws_lb_listener" {
+#   count         = var.public == true ? 0 : 1
+#   load_balancer_arn = data.aws_lb.passed_on ## var.aws_lb_arn
+#   port              = var.aws_lb_out_port
+#   protocol          = "HTTPS"
+#   ssl_policy        = "ELBSecurityPolicy-TLS-1-2-Ext-2018-06"
+#   certificate_arn   = var.aws_lb_certificate_arn
+
+#   default_action {
+#     type             = "forward"
+#     target_group_arn = aws_lb_target_group.aws_ecs_service_target_group.arn
+#   }
+# }
+
+# resource "aws_lb_listener_rule" "block_header_rule" {
+#   count         = var.public == true ? 0 : 1
+#   listener_arn = aws_lb_listener.aws_ecs_service_aws_lb_listener.arn
+#   priority = 100
+
+#   condition {
+#       http_header {
+#         http_header_name = "X-Forwarded-Host"
+#         values           = ["*"]
+#       }
+#   }
+
+#   action {
+#     type = "fixed-response"
+#     fixed_response {
+#       content_type  = "text/plain"
+#       message_body  = "Invalid host header."
+#       status_code   = 400
+#     }
+#   }
+# }
+
+
+# # ---------------------------------------------------
+# #    Public Load Balancer - If Public Subnet
+# # ---------------------------------------------------
+# resource "aws_lb" "public" {
+#   count               = var.public == true ? 1 : 0
+#   name                = "${var.name_prefix}-Pub-${var.service_name}-LB"
+#   load_balancer_type  = "application"
+#   security_groups     = var.security_groups
+#   subnets             = var.subnets
+
+#   access_logs {
+#     bucket  = "usw2-dev-lb-bucket-logs" # var.s3_log_bucket
+#     prefix  = "${var.service_name}_lb"
+#     enabled = true
+#   }
+
+#   tags = merge(
+#     var.standard_tags,
+#     tomap({ Name = "Public-${var.service_name}" })
+#   )
+# }
+
+# resource "aws_lb_listener" "public" {
+#   count             = var.public == true ? 1 : 0
+#   load_balancer_arn = aws_lb.public[0].arn
+#   port              = var.service_port # BEFORE: 80
+#   protocol          = "HTTP"
+#   depends_on        = [aws_lb.public]
+
+#   default_action {
+#     type = "redirect"
+
+#     redirect {
+#       port        = var.aws_lb_out_port # BEFORE: 443
+#       protocol    = "HTTPS"
+#       status_code = "HTTP_301"
+#     }
+#   }
+# }
+
+# resource "aws_lb_listener_rule" "block_header" {
+#   count         = var.public == true ? 1 : 0
+#   listener_arn  = aws_lb_listener.public[0].arn
+#   priority      = 100
+#   depends_on    = [aws_lb.public]
+
+#   condition {
+#       http_header {
+#         http_header_name = "X-Forwarded-Host"
+#         values           = ["*"]
+#       }
+#   }
+#   action {
+#     type = "fixed-response"
+#     fixed_response {
+#       content_type = "text/plain"
+#       message_body = "Invalid host header."
+#       status_code = 400
+#     }
+#   }
+# }
+
+
+# # # ---------------------------------------------------
+# # #    DNS Record (CNAME)
+# # # ---------------------------------------------------
+# # resource "aws_route53_record" "main" {
+# #   count   = var.public == true ? 1 : 0
+# #   zone_id = data.aws_route53_zone.main.zone_id
+# #   name    = "${var.name_prefix}-${var.service_name}"
+# #   type    = "CNAME"
+# #   ttl     = 300
+# #   records = [aws_lb.public[0].dns_name]
+# # }
