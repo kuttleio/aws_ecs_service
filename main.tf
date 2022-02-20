@@ -39,11 +39,11 @@ resource "aws_ecs_service" "main" {
   network_configuration {
     security_groups   = var.security_groups
     subnets           = var.subnets
-    # assign_public_ip  = var.public
+    assign_public_ip  = var.public
   }
 
   load_balancer {
-    target_group_arn  = aws_lb_target_group.aws_ecs_service_target_group.arn # var.target_group_arn ## aws_lb_target_group.aws_ecs_service_target_group.arn
+    target_group_arn  = aws_lb_target_group.aws_ecs_service_target_group.arn
     container_name    = var.service_name
     container_port    = var.service_port
   }
@@ -318,79 +318,3 @@ resource "aws_lb_listener_rule" "block_header_rule" {
     }
   }
 }
-
-
-# # ---------------------------------------------------
-# #    Public Load Balancer - If Public Subnet
-# # ---------------------------------------------------
-# resource "aws_lb" "public" {
-#   count               = var.public == true ? 1 : 0
-#   name                = "${var.name_prefix}-Pub-${var.service_name}-LB"
-#   load_balancer_type  = "application"
-#   security_groups     = var.security_groups
-#   subnets             = var.subnets
-
-#   access_logs {
-#     bucket  = "usw2-dev-lb-bucket-logs" # var.s3_log_bucket
-#     prefix  = "${var.service_name}_lb"
-#     enabled = true
-#   }
-
-#   tags = merge(
-#     var.standard_tags,
-#     tomap({ Name = "Public-${var.service_name}" })
-#   )
-# }
-
-# resource "aws_lb_listener" "public" {
-#   count             = var.public == true ? 1 : 0
-#   load_balancer_arn = aws_lb.public[0].arn
-#   port              = var.service_port # BEFORE: 80
-#   protocol          = "HTTP"
-#   depends_on        = [aws_lb.public]
-
-#   default_action {
-#     type = "redirect"
-
-#     redirect {
-#       port        = var.aws_lb_out_port # BEFORE: 443
-#       protocol    = "HTTPS"
-#       status_code = "HTTP_301"
-#     }
-#   }
-# }
-
-# resource "aws_lb_listener_rule" "block_header" {
-#   count         = var.public == true ? 1 : 0
-#   listener_arn  = aws_lb_listener.public[0].arn
-#   priority      = 100
-#   depends_on    = [aws_lb.public]
-
-#   condition {
-#       http_header {
-#         http_header_name = "X-Forwarded-Host"
-#         values           = ["*"]
-#       }
-#   }
-#   action {
-#     type = "fixed-response"
-#     fixed_response {
-#       content_type = "text/plain"
-#       message_body = "Invalid host header."
-#       status_code = 400
-#     }
-#   }
-# }
-
-
-# # # ---------------------------------------------------
-# # #    DNS Record (CNAME)
-# # # ---------------------------------------------------
-# # resource "aws_route53_record" "main" {
-# #   count   = var.public == true ? 1 : 0
-# #   zone_id = data.aws_route53_zone.main.zone_id
-# #   name    = "${var.name_prefix}-${var.service_name}"
-# #   type    = "CNAME"
-# #   ttl     = 300
-# #   records = [aws_lb.public[0].dns_name]
-# # }
