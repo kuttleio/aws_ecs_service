@@ -64,15 +64,15 @@ variable command {
   type    = list(string)
   default = null
 }
-variable container_desired_count {
+variable desired_count {
   type    = number
   default = 1
 }
-variable container_max_capacity {
+variable max_capacity {
   type    = number
   default = 1
 }
-variable container_min_capacity {
+variable min_capacity {
   type    = number
   default = 1
 }

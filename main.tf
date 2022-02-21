@@ -16,7 +16,7 @@ resource "aws_ecs_service" "main" {
   propagate_tags                      = "SERVICE"
   deployment_maximum_percent          = 200
   deployment_minimum_healthy_percent  = 100
-  desired_count                       = var.container_desired_count
+  desired_count                       = var.desired_count
   task_definition                     = aws_ecs_task_definition.main.arn
   health_check_grace_period_seconds   = var.health_check_grace_period_seconds
   tags                                = merge(var.standard_tags, tomap({ Name = var.service_name }))
@@ -210,8 +210,8 @@ resource "time_sleep" "wait" {
 }
 
 resource "aws_appautoscaling_target" "autoscaling_target" {
-  min_capacity        = var.container_min_capacity
-  max_capacity        = var.container_max_capacity
+  min_capacity        = var.min_capacity
+  max_capacity        = var.max_capacity
   resource_id         = "service/${var.cluster_name}/${var.name_prefix}-${var.wm_instance}-${var.service_name}"
   role_arn            = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService"
   scalable_dimension  = "ecs:service:DesiredCount"
