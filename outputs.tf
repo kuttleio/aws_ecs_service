@@ -1,3 +1,9 @@
+output "service_port" {
+    value = var.service_port
+}
+
+
+
 # output "load_balancer_arn" {
 #     value = var.public == true ? aws_lb.public[0].arn : null
 # }
@@ -13,10 +19,6 @@
 # output "fqdn" {
 #     value = var.public == true ? aws_route53_record.main[0].fqdn : null
 # }
-
-output "service_port" {
-    value = var.service_port
-}
 
 # output cloudwatch_log_group_name {
 #     value = aws_cloudwatch_log_group.ecs_group.name

@@ -281,7 +281,6 @@ resource "aws_lb_target_group" "aws_ecs_service_target_group" {
   }
 }
 
-
 resource "aws_lb_listener" "aws_ecs_service_aws_lb_listener" {
   count             = var.public == true ? 0 : 1  
   load_balancer_arn = data.aws_lb.passed_on.arn
