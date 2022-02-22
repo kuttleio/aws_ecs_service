@@ -43,7 +43,7 @@ resource "aws_ecs_service" "main" {
   }
 
   load_balancer {
-    target_group_arn  = var.public == true ? aws_lb_target_group.aws_ecs_service_target_group[0].arn : aws_lb_target_group.aws_ecs_service_target_group.arn
+    target_group_arn  = aws_lb_target_group.aws_ecs_service_target_group.arn
     container_name    = var.service_name
     container_port    = var.service_port
   }
@@ -78,7 +78,7 @@ module "main_container_definition" {
       value = var.service_port
     },
     {
-      name  = "service_port"
+      name  = "APP_PORT"
       value = var.service_port
     }
   ])
@@ -146,7 +146,7 @@ resource "aws_ecs_task_definition" "main" {
   memory                    = var.task_memory > var.container_memory ? var.task_memory : var.container_memory
   network_mode              = "awsvpc"
   tags                      = merge(var.standard_tags, tomap({ Name = var.service_name }))
-  container_definitions     = "[${module.main_container_definition.json_map_encoded}, ${module.logs_container_definition.json_map_encoded}]" # module.main_container_definition.json_map_encoded_list
+  container_definitions     = "[${module.main_container_definition.json_map_encoded}, ${module.logs_container_definition.json_map_encoded}]"
 
   volume {
     name      = "logdna"
@@ -259,10 +259,9 @@ resource "aws_appautoscaling_policy" "scale_down" {
 
 
 # ---------------------------------------------------
-#    Internal Load Balancer - If Private Subnet
+#    Load Balancing
 # ---------------------------------------------------
 resource "aws_lb_target_group" "aws_ecs_service_target_group" {
-  count                         = var.public == true ? 0 : 1
   name                          = "${var.name_prefix}-${var.wm_instance}-${var.service_name}-tg"
   port                          = var.service_port
   protocol                      = "HTTP"
@@ -282,7 +281,6 @@ resource "aws_lb_target_group" "aws_ecs_service_target_group" {
 }
 
 resource "aws_lb_listener" "aws_ecs_service_aws_lb_listener" {
-  count             = var.public == true ? 0 : 1  
   load_balancer_arn = data.aws_lb.passed_on.arn
   port              = var.service_port
   protocol          = "HTTPS"
@@ -291,13 +289,12 @@ resource "aws_lb_listener" "aws_ecs_service_aws_lb_listener" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.aws_ecs_service_target_group[0].arn
+    target_group_arn = aws_lb_target_group.aws_ecs_service_target_group.arn
   }
 }
 
 resource "aws_lb_listener_rule" "block_header_rule" {
-  count        = var.public == true ? 0 : 1  
-  listener_arn = aws_lb_listener.aws_ecs_service_aws_lb_listener[0].arn
+  listener_arn = aws_lb_listener.aws_ecs_service_aws_lb_listener.arn
   priority = 100
 
   condition {
