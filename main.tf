@@ -6,6 +6,33 @@ resource "aws_cloudwatch_log_group" "ecs_group" {
   tags = var.standard_tags
 }
 
+# ---------------------------------------------------
+#    Service Discovery
+# ---------------------------------------------------
+resource aws_service_discovery_public_dns_namespace main {
+  name        = "${var.name_prefix}.${var.wm_instance}.wematch.local"
+  description = "Service Discovery for ${var.name_prefix}-${var.wm_instance}-${var.service_name}"
+  vpc         = var.vpc_id
+}
+
+resource aws_service_discovery_service main {
+  name = "${var.name_prefix}-${var.wm_instance}-${var.service_name}"
+
+  dns_config {
+    namespace_id = aws_service_discovery_public_dns_namespace.main.id
+
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+  }
+
+  health_check_config {
+    failure_threshold = 5
+    resource_path     = "path"
+    type              = "HTTP"
+  }
+}
 
 # ---------------------------------------------------
 #    ECS Service
@@ -46,6 +73,10 @@ resource "aws_ecs_service" "main" {
     target_group_arn  = aws_lb_target_group.aws_ecs_service_target_group.arn
     container_name    = var.service_name
     container_port    = var.service_port
+  }
+
+  service_registries {
+    registry_arn = aws_service_discovery_service.main.arn
   }
 }
 

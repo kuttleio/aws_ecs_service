@@ -21,3 +21,7 @@ output "service_port" {
 # output cloudwatch_log_group_name {
 #     value = aws_cloudwatch_log_group.ecs_group.name
 # }
+
+output service_discovery_dns {
+    value = aws_service_discovery_public_dns_namespace.main.hosted_zone
+}
