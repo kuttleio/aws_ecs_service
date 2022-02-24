@@ -12,7 +12,6 @@ resource "aws_cloudwatch_log_group" "ecs_group" {
 resource aws_service_discovery_public_dns_namespace main {
   name        = "${var.name_prefix}.${var.wm_instance}.wematch.local"
   description = "Service Discovery for ${var.name_prefix}-${var.wm_instance}-${var.service_name}"
-  vpc         = var.vpc_id
 }
 
 resource aws_service_discovery_service main {
