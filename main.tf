@@ -68,11 +68,11 @@ resource "aws_ecs_service" "main" {
     assign_public_ip  = var.public
   }
 
-  load_balancer {
-    target_group_arn  = aws_lb_target_group.aws_ecs_service_target_group.arn
-    container_name    = var.service_name
-    container_port    = var.service_port
-  }
+  # load_balancer {
+  #   target_group_arn  = aws_lb_target_group.aws_ecs_service_target_group.arn
+  #   container_name    = var.service_name
+  #   container_port    = var.service_port
+  # }
 
   service_registries {
     registry_arn = aws_service_discovery_service.main.arn
