@@ -28,7 +28,7 @@ resource aws_service_discovery_service main {
 
   health_check_config {
     failure_threshold = 5
-    resource_path     = "path"
+    resource_path     = "/health"
     type              = "HTTP"
   }
 }
