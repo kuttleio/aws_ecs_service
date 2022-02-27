@@ -93,13 +93,13 @@ module "main_container_definition" {
   container_memory              = var.container_memory
   container_memory_reservation  = var.container_memory_reservation > var.container_memory ? var.container_memory_reservation : var.container_memory
   
-  port_mappings = [
-    {
-      containerPort = var.service_port
-      # hostPort      = var.service_port
-      protocol  = "tcp"
-    }
-  ]
+  # port_mappings = [
+  #   {
+  #     containerPort = var.service_port
+  #     hostPort      = var.service_port
+  #     protocol      = "tcp"
+  #   }
+  # ]
 
   environment = setunion(var.environment,  
   [
