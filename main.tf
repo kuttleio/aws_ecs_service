@@ -108,7 +108,7 @@ module "main_container_definition" {
       value = var.service_port
     },
     {
-      name  = "service_port"
+      name  = "APP_PORT"
       value = var.service_port
     }
   ])
