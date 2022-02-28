@@ -15,7 +15,6 @@ variable aws_lb_out_port {
   type    = number
   default = null
 }
-
 variable image_version {
   type    = string
   default = "latest"
@@ -35,23 +34,19 @@ variable service_name {
 }
 variable container_cpu {
   type    = number
-  default = 128
+  default = 256
 }
 variable container_memory {
   type    = number
-  default = 256
-}
-variable container_memory_reservation {
-  type    = number
-  default = 256
+  default = 512
 }
 variable task_cpu {
   type    = number
-  default = 128
+  default = 256
 }
 variable task_memory {
   type    = number
-  default = 256
+  default = 512
 }
 variable service_port {
   type    = number
