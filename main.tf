@@ -61,7 +61,7 @@ module "main_container_definition" {
   container_image               = "${var.ecr_account_id}.dkr.ecr.${var.ecr_region}.amazonaws.com/${var.image_name}:${var.image_version}"
   container_cpu                 = var.container_cpu
   container_memory              = var.container_memory
-  container_memory_reservation  = var.container_memory_reservation > var.container_memory ? var.container_memory_reservation : var.container_memory
+  container_memory_reservation  = var.container_memory
   
   port_mappings = [
     {
@@ -96,46 +96,6 @@ module "main_container_definition" {
 
 
 # ---------------------------------------------------
-#     Container - Logs
-# ---------------------------------------------------
-module "logs_container_definition" {
-  source  = "cloudposse/ecs-container-definition/aws"
-  version = "0.58.1"
-
-  container_name  = "logdna"
-  container_image = "logdna/logspout:latest"
-
-  environment = [
-    {
-      name  = "LOGDNA_KEY"
-      value = var.logdna_key
-    },
-    {
-      name  = "TAGS"
-      value = "${var.name_prefix}, ${data.aws_region.current.name}, ${var.wm_instance}, ${var.service_name}"
-    }]
-
-  mount_points = [
-    {
-      readOnly      : false,
-      containerPath : "/var/run/docker.sock",
-      sourceVolume  : "logdna"
-    }
-  ]
-
-  log_configuration = {
-    logDriver     = "awslogs"
-    secretOptions = null
-    options = {
-      "awslogs-group"         = aws_cloudwatch_log_group.ecs_group.name
-      "awslogs-region"        = data.aws_region.current.name
-      "awslogs-stream-prefix" = "ecs"
-    }
-  }
-}
-
-
-# ---------------------------------------------------
 #     Task Definition
 # ---------------------------------------------------
 resource "aws_ecs_task_definition" "main" {
@@ -146,12 +106,7 @@ resource "aws_ecs_task_definition" "main" {
   memory                    = var.task_memory > var.container_memory ? var.task_memory : var.container_memory
   network_mode              = "awsvpc"
   tags                      = merge(var.standard_tags, tomap({ Name = var.service_name }))
-  container_definitions     = "[${module.main_container_definition.json_map_encoded}, ${module.logs_container_definition.json_map_encoded}]" # module.main_container_definition.json_map_encoded_list
-
-  volume {
-    name      = "logdna"
-    host_path = "/var/run/docker.sock"
-  }
+  container_definitions     = module.main_container_definition.json_map_encoded_list # "[${module.main_container_definition.json_map_encoded}, ${module.logs_container_definition.json_map_encoded}]"
 }
 
 
