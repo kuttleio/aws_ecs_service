@@ -117,7 +117,7 @@ module "logs_container_definition" {
 
   mount_points = [
     {
-      readOnly      : true,
+      readOnly      : false,
       containerPath : "/var/run/docker.sock",
       sourceVolume  : "logdna"
     }
