@@ -6,6 +6,7 @@ variable name_prefix {}
 variable domain_name {}
 variable aws_lb_arn {}
 variable ecr_region {}
+variable logdna_key {}
 variable ecr_account_id {}
 variable security_groups {}
 variable aws_lb_certificate_arn {}
@@ -21,7 +22,7 @@ variable image_version {
 }
 variable wm_instance {
   type = string
-  default = "nice-fox"
+  default = "fargate"
 }
 variable standard_tags {
   type = map(string)
